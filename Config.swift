@@ -2,7 +2,12 @@ import Foundation
 
 struct Config {
     // MARK: - OpenAI Configuration
-    static let openAIAPIKey = "" // Add your OpenAI API key here
+    // 🔑 IMPORTANT: Add your OpenAI API key here
+    // 1. Go to https://platform.openai.com/api-keys
+    // 2. Create a new API key or copy your existing one
+    // 3. Replace the empty string below with your actual API key
+    // 4. Example: static let openAIAPIKey = "sk-1234567890abcdef..."
+    static let openAIAPIKey = "" // ⚠️ ADD YOUR API KEY HERE
     
     // MARK: - App Configuration
     static let appName = "FridgeChef"
@@ -27,10 +32,16 @@ struct Config {
     
     // MARK: - Validation
     static var isOpenAIConfigured: Bool {
-        return !openAIAPIKey.isEmpty
+        return !openAIAPIKey.isEmpty && openAIAPIKey != "your-openai-api-key-here"
     }
     
     // MARK: - Debug Configuration
     static let enableDebugLogging = true
     static let mockAnalysisDelay: TimeInterval = 2.0 // Simulate API delay
+    
+    // MARK: - Error Messages
+    static let apiKeyMissingMessage = "OpenAI API key not configured. Please add your API key in Config.swift"
+    static let networkErrorMessage = "Network error. Please check your internet connection."
+    static let apiErrorMessage = "API error. Please try again later."
+    static let imageProcessingErrorMessage = "Error processing image. Please try again."
 }

@@ -9,8 +9,23 @@ class OpenAIAPIService: ObservableObject {
         self.apiKey = apiKey
     }
     
+    // MARK: - Validation
+    private func validateAPIKey() -> Bool {
+        guard !apiKey.isEmpty else {
+            print("❌ OpenAI API key is missing. Please add your API key in Config.swift")
+            return false
+        }
+        return true
+    }
+    
     // MARK: - Image Analysis
     func analyzeFridgeImage(_ image: UIImage, completion: @escaping (Result<[Ingredient], Error>) -> Void) {
+        // Check if API key is configured
+        guard validateAPIKey() else {
+            completion(.failure(APIError.missingAPIKey))
+            return
+        }
+        
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             completion(.failure(APIError.invalidImage))
             return
@@ -62,6 +77,12 @@ class OpenAIAPIService: ObservableObject {
     
     // MARK: - Recipe Generation
     func generateRecipes(from ingredients: [Ingredient], completion: @escaping (Result<[Recipe], Error>) -> Void) {
+        // Check if API key is configured
+        guard validateAPIKey() else {
+            completion(.failure(APIError.missingAPIKey))
+            return
+        }
+        
         let ingredientNames = ingredients.map { $0.name }.joined(separator: ", ")
         
         let prompt = """
@@ -253,6 +274,7 @@ enum APIError: Error, LocalizedError {
     case noData
     case invalidResponse
     case parsingError
+    case missingAPIKey
     
     var errorDescription: String? {
         switch self {
@@ -266,6 +288,8 @@ enum APIError: Error, LocalizedError {
             return "Invalid response from API"
         case .parsingError:
             return "Error parsing response"
+        case .missingAPIKey:
+            return "OpenAI API key is missing. Please add your API key in Config.swift"
         }
     }
 }

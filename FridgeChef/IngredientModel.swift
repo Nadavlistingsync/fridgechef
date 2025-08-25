@@ -57,8 +57,12 @@ struct NutritionInfo: Codable {
 
 struct IngredientsResultView: View {
     let ingredients: [Ingredient]
+    @StateObject private var openAIService = OpenAIAPIService()
     @State private var showingRecipes = false
     @State private var suggestedRecipes: [Recipe] = []
+    @State private var isGeneratingRecipes = false
+    @State private var showingError = false
+    @State private var errorMessage = ""
     
     var body: some View {
         NavigationView {
@@ -116,16 +120,23 @@ struct IngredientsResultView: View {
                         generateRecipes()
                     }) {
                         HStack {
-                            Image(systemName: "fork.knife")
-                            Text("Find Recipes")
+                            if isGeneratingRecipes {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .scaleEffect(0.8)
+                            } else {
+                                Image(systemName: "fork.knife")
+                            }
+                            Text(isGeneratingRecipes ? "Generating Recipes..." : "Find Recipes")
                         }
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.green)
+                        .background(isGeneratingRecipes ? Color.gray : Color.green)
                         .cornerRadius(15)
                     }
+                    .disabled(isGeneratingRecipes)
                     .padding()
                 }
             }
@@ -134,52 +145,87 @@ struct IngredientsResultView: View {
             .sheet(isPresented: $showingRecipes) {
                 RecipeSuggestionsView(recipes: suggestedRecipes, ingredients: ingredients)
             }
+            .alert("Error", isPresented: $showingError) {
+                Button("OK") { }
+            } message: {
+                Text(errorMessage)
+            }
         }
     }
     
     private func generateRecipes() {
-        // Mock recipe generation - in real app, this would call OpenAI API
-        suggestedRecipes = [
-            Recipe(
-                name: "Chicken Stir Fry",
-                description: "A quick and healthy stir fry using your available ingredients",
-                ingredients: ["Chicken Breast", "Bell Peppers", "Onions", "Garlic", "Olive Oil"],
-                instructions: [
-                    "Cut chicken into bite-sized pieces",
-                    "Chop vegetables",
-                    "Heat oil in a large pan",
-                    "Cook chicken until golden",
-                    "Add vegetables and stir fry",
-                    "Season with salt and pepper"
-                ],
-                cookingTime: 25,
-                difficulty: "Easy",
-                servings: 4,
-                imageURL: nil,
-                tags: ["Quick", "Healthy", "Asian"],
-                nutritionInfo: NutritionInfo(calories: 350, protein: 35, carbs: 15, fat: 12, fiber: 5)
-            ),
-            Recipe(
-                name: "Tomato Basil Pasta",
-                description: "Simple and delicious pasta with fresh tomatoes",
-                ingredients: ["Tomatoes", "Garlic", "Olive Oil"],
-                instructions: [
-                    "Cook pasta according to package",
-                    "Dice tomatoes",
-                    "Sauté garlic in olive oil",
-                    "Add tomatoes and cook",
-                    "Toss with pasta",
-                    "Garnish with basil"
-                ],
-                cookingTime: 20,
-                difficulty: "Easy",
-                servings: 2,
-                imageURL: nil,
-                tags: ["Italian", "Vegetarian", "Quick"],
-                nutritionInfo: NutritionInfo(calories: 400, protein: 12, carbs: 65, fat: 8, fiber: 4)
-            )
-        ]
-        showingRecipes = true
+        isGeneratingRecipes = true
+        
+        // Check if API key is configured
+        guard Config.isOpenAIConfigured else {
+            isGeneratingRecipes = false
+            errorMessage = Config.apiKeyMissingMessage
+            showingError = true
+            return
+        }
+        
+        // Use real API if configured, otherwise use mock data
+        if Config.enableRecipeGeneration && Config.isOpenAIConfigured {
+            openAIService.generateRecipes(from: ingredients) { result in
+                DispatchQueue.main.async {
+                    isGeneratingRecipes = false
+                    switch result {
+                    case .success(let recipes):
+                        suggestedRecipes = recipes
+                        showingRecipes = true
+                    case .failure(let error):
+                        errorMessage = error.localizedDescription
+                        showingError = true
+                    }
+                }
+            }
+        } else {
+            // Use mock data for testing
+            DispatchQueue.main.asyncAfter(deadline: .now() + Config.mockAnalysisDelay) {
+                suggestedRecipes = [
+                    Recipe(
+                        name: "Chicken Stir Fry",
+                        description: "A quick and healthy stir fry using your available ingredients",
+                        ingredients: ["Chicken Breast", "Bell Peppers", "Onions", "Garlic", "Olive Oil"],
+                        instructions: [
+                            "Cut chicken into bite-sized pieces",
+                            "Chop vegetables",
+                            "Heat oil in a large pan",
+                            "Cook chicken until golden",
+                            "Add vegetables and stir fry",
+                            "Season with salt and pepper"
+                        ],
+                        cookingTime: 25,
+                        difficulty: "Easy",
+                        servings: 4,
+                        imageURL: nil,
+                        tags: ["Quick", "Healthy", "Asian"],
+                        nutritionInfo: NutritionInfo(calories: 350, protein: 35, carbs: 15, fat: 12, fiber: 5)
+                    ),
+                    Recipe(
+                        name: "Tomato Basil Pasta",
+                        description: "Simple and delicious pasta with fresh tomatoes",
+                        ingredients: ["Tomatoes", "Garlic", "Olive Oil"],
+                        instructions: [
+                            "Cook pasta according to package",
+                            "Dice tomatoes",
+                            "Sauté garlic in olive oil",
+                            "Add tomatoes and cook",
+                            "Toss with pasta",
+                            "Garnish with basil"
+                        ],
+                        cookingTime: 20,
+                        difficulty: "Easy",
+                        servings: 2,
+                        imageURL: nil,
+                        tags: ["Italian", "Vegetarian", "Quick"],
+                        nutritionInfo: NutritionInfo(calories: 400, protein: 12, carbs: 65, fat: 8, fiber: 4)
+                    )
+                ]
+                isGeneratingRecipes = false
+                showingRecipes = true
+            }
+        }
     }
 }
 

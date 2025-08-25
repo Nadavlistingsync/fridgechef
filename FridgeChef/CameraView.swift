@@ -4,12 +4,15 @@ import PhotosUI
 
 struct CameraView: View {
     @StateObject private var cameraManager = CameraManager()
+    @StateObject private var openAIService = OpenAIAPIService()
     @State private var showingImagePicker = false
     @State private var showingCamera = false
     @State private var selectedImage: UIImage?
     @State private var isAnalyzing = false
     @State private var detectedIngredients: [Ingredient] = []
     @State private var showingResults = false
+    @State private var showingError = false
+    @State private var errorMessage = ""
     
     var body: some View {
         NavigationView {
@@ -136,6 +139,11 @@ struct CameraView: View {
             .sheet(isPresented: $showingResults) {
                 IngredientsResultView(ingredients: detectedIngredients)
             }
+            .alert("Error", isPresented: $showingError) {
+                Button("OK") { }
+            } message: {
+                Text(errorMessage)
+            }
         }
     }
     
@@ -144,18 +152,43 @@ struct CameraView: View {
         
         isAnalyzing = true
         
-        // Simulate API call with mock data for now
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            detectedIngredients = [
-                Ingredient(name: "Tomatoes", confidence: 0.95, category: "Vegetables"),
-                Ingredient(name: "Chicken Breast", confidence: 0.88, category: "Protein"),
-                Ingredient(name: "Onions", confidence: 0.92, category: "Vegetables"),
-                Ingredient(name: "Bell Peppers", confidence: 0.87, category: "Vegetables"),
-                Ingredient(name: "Garlic", confidence: 0.78, category: "Vegetables"),
-                Ingredient(name: "Olive Oil", confidence: 0.85, category: "Pantry")
-            ]
+        // Check if API key is configured
+        guard Config.isOpenAIConfigured else {
             isAnalyzing = false
-            showingResults = true
+            errorMessage = Config.apiKeyMissingMessage
+            showingError = true
+            return
+        }
+        
+        // Use real API if configured, otherwise use mock data
+        if Config.enableRealAIAnalysis && Config.isOpenAIConfigured {
+            openAIService.analyzeFridgeImage(image) { result in
+                DispatchQueue.main.async {
+                    isAnalyzing = false
+                    switch result {
+                    case .success(let ingredients):
+                        detectedIngredients = ingredients
+                        showingResults = true
+                    case .failure(let error):
+                        errorMessage = error.localizedDescription
+                        showingError = true
+                    }
+                }
+            }
+        } else {
+            // Use mock data for testing
+            DispatchQueue.main.asyncAfter(deadline: .now() + Config.mockAnalysisDelay) {
+                detectedIngredients = [
+                    Ingredient(name: "Tomatoes", confidence: 0.95, category: "Vegetables"),
+                    Ingredient(name: "Chicken Breast", confidence: 0.88, category: "Protein"),
+                    Ingredient(name: "Onions", confidence: 0.92, category: "Vegetables"),
+                    Ingredient(name: "Bell Peppers", confidence: 0.87, category: "Vegetables"),
+                    Ingredient(name: "Garlic", confidence: 0.78, category: "Vegetables"),
+                    Ingredient(name: "Olive Oil", confidence: 0.85, category: "Pantry")
+                ]
+                isAnalyzing = false
+                showingResults = true
+            }
         }
     }
 }
