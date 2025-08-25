@@ -40,27 +40,37 @@
 
 **This is the most important step!** The app requires an OpenAI API key to function properly.
 
-#### Step 1: Get Your OpenAI API Key
+#### Option 1: Environment Variable (Recommended - More Secure)
 
-1. Go to [OpenAI Platform](https://platform.openai.com/api-keys)
-2. Sign in or create an account
-3. Click "Create new secret key"
-4. Give it a name (e.g., "FridgeChef App")
-5. Copy the generated API key (starts with `sk-`)
+1. **Get Your OpenAI API Key**
+   - Go to [OpenAI Platform](https://platform.openai.com/api-keys)
+   - Sign in or create an account
+   - Click "Create new secret key"
+   - Give it a name (e.g., "FridgeChef App")
+   - Copy the generated API key (starts with `sk-`)
 
-#### Step 2: Add API Key to the App
-
-1. Open the project in Xcode
-2. Navigate to `Config.swift` in the project navigator
-3. Find this line:
-   ```swift
-   static let openAIAPIKey = "" // ⚠️ ADD YOUR API KEY HERE
+2. **Set Environment Variable**
+   ```bash
+   # For development, create a .env file (already created and gitignored)
+   echo "OPENAI_API_KEY=your-api-key-here" > .env
+   
+   # Or set it in your shell profile
+   export OPENAI_API_KEY="your-api-key-here"
    ```
-4. Replace the empty string with your API key:
+
+#### Option 2: Direct Configuration (For Development Only)
+
+1. **Open the project in Xcode**
+2. **Navigate to `Config.swift`** in the project navigator
+3. **Find this line**:
    ```swift
-   static let openAIAPIKey = "sk-your-actual-api-key-here"
+   return "" // ⚠️ ADD YOUR API KEY HERE FOR DEVELOPMENT
    ```
-5. Save the file
+4. **Replace the empty string** with your API key:
+   ```swift
+   return "sk-your-actual-api-key-here"
+   ```
+5. **Save the file**
 
 #### Step 3: Verify Configuration
 

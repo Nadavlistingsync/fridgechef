@@ -7,7 +7,16 @@ struct Config {
     // 2. Create a new API key or copy your existing one
     // 3. Replace the empty string below with your actual API key
     // 4. Example: static let openAIAPIKey = "sk-1234567890abcdef..."
-    static let openAIAPIKey = "" // ⚠️ ADD YOUR API KEY HERE
+    // 
+    // SECURITY NOTE: For production, use environment variables instead of hardcoding
+    static let openAIAPIKey: String = {
+        // First try to get from environment variable (more secure)
+        if let envKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"], !envKey.isEmpty {
+            return envKey
+        }
+        // Fallback to hardcoded key (for development only)
+        return "" // ⚠️ ADD YOUR API KEY HERE FOR DEVELOPMENT
+    }()
     
     // MARK: - App Configuration
     static let appName = "FridgeChef"
@@ -40,7 +49,7 @@ struct Config {
     static let mockAnalysisDelay: TimeInterval = 2.0 // Simulate API delay
     
     // MARK: - Error Messages
-    static let apiKeyMissingMessage = "OpenAI API key not configured. Please add your API key in Config.swift"
+    static let apiKeyMissingMessage = "OpenAI API key not configured. Please add your API key in Config.swift or set OPENAI_API_KEY environment variable"
     static let networkErrorMessage = "Network error. Please check your internet connection."
     static let apiErrorMessage = "API error. Please try again later."
     static let imageProcessingErrorMessage = "Error processing image. Please try again."
