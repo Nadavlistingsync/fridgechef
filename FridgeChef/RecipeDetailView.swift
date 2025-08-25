@@ -1,9 +1,20 @@
 import SwiftUI
+import CoreData
 
 struct RecipeDetailView: View {
     let recipe: Recipe
-    @State private var isFavorite = false
+    @Environment(\.managedObjectContext) private var viewContext
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(keyPath: \FavoriteRecipe.timestamp, ascending: false)],
+        predicate: NSPredicate(format: "name == %@", recipe.name),
+        animation: .default)
+    private var existingFavorites: FetchedResults<FavoriteRecipe>
+    
     @State private var showingShoppingList = false
+    
+    private var isFavorite: Bool {
+        !existingFavorites.isEmpty
+    }
     
     var body: some View {
         ScrollView {
@@ -18,7 +29,7 @@ struct RecipeDetailView: View {
                         Spacer()
                         
                         Button(action: {
-                            isFavorite.toggle()
+                            toggleFavorite()
                         }) {
                             Image(systemName: isFavorite ? "heart.fill" : "heart")
                                 .font(.title2)
@@ -142,6 +153,33 @@ struct RecipeDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingShoppingList) {
             ShoppingListView(recipe: recipe)
+        }
+    }
+    
+    private func toggleFavorite() {
+        if isFavorite {
+            // Remove from favorites
+            existingFavorites.forEach { favorite in
+                viewContext.delete(favorite)
+            }
+        } else {
+            // Add to favorites
+            let newFavorite = FavoriteRecipe(context: viewContext)
+            newFavorite.id = UUID()
+            newFavorite.name = recipe.name
+            newFavorite.timestamp = Date()
+            
+            // Encode recipe data
+            if let recipeData = try? JSONEncoder().encode(recipe) {
+                newFavorite.recipeData = recipeData
+            }
+        }
+        
+        // Save changes
+        do {
+            try viewContext.save()
+        } catch {
+            print("Error saving favorite: \(error)")
         }
     }
 }

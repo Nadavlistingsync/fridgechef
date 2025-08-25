@@ -13,6 +13,7 @@ struct CameraView: View {
     @State private var showingResults = false
     @State private var showingError = false
     @State private var errorMessage = ""
+    @State private var showingPermissionAlert = false
     
     var body: some View {
         NavigationView {
@@ -71,7 +72,7 @@ struct CameraView: View {
                 // Action Buttons
                 VStack(spacing: 15) {
                     Button(action: {
-                        showingCamera = true
+                        checkCameraPermissionAndProceed()
                     }) {
                         HStack {
                             Image(systemName: "camera.fill")
@@ -86,7 +87,7 @@ struct CameraView: View {
                     }
                     
                     Button(action: {
-                        showingImagePicker = true
+                        checkPhotoLibraryPermissionAndProceed()
                     }) {
                         HStack {
                             Image(systemName: "photo.fill")
@@ -144,6 +145,58 @@ struct CameraView: View {
             } message: {
                 Text(errorMessage)
             }
+            .alert("Permission Required", isPresented: $showingPermissionAlert) {
+                Button("Settings") {
+                    if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(settingsUrl)
+                    }
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Camera and Photo Library access is required to use this feature. Please enable permissions in Settings.")
+            }
+        }
+    }
+    
+    private func checkCameraPermissionAndProceed() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            showingCamera = true
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                DispatchQueue.main.async {
+                    if granted {
+                        showingCamera = true
+                    } else {
+                        showingPermissionAlert = true
+                    }
+                }
+            }
+        case .denied, .restricted:
+            showingPermissionAlert = true
+        @unknown default:
+            showingPermissionAlert = true
+        }
+    }
+    
+    private func checkPhotoLibraryPermissionAndProceed() {
+        switch PHPhotoLibrary.authorizationStatus() {
+        case .authorized, .limited:
+            showingImagePicker = true
+        case .notDetermined:
+            PHPhotoLibrary.requestAuthorization { status in
+                DispatchQueue.main.async {
+                    if status == .authorized || status == .limited {
+                        showingImagePicker = true
+                    } else {
+                        showingPermissionAlert = true
+                    }
+                }
+            }
+        case .denied, .restricted:
+            showingPermissionAlert = true
+        @unknown default:
+            showingPermissionAlert = true
         }
     }
     
