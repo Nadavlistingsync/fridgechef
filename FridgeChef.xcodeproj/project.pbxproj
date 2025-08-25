@@ -15,7 +15,6 @@
 		A1234567890123456789013E /* RecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890123456789013F /* RecipeView.swift */; };
 		A1234567890123456789014A /* RecipeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890123456789014B /* RecipeDetailView.swift */; };
 		A1234567890123456789014C /* IngredientModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890123456789014D /* IngredientModel.swift */; };
-		A1234567890123456789014E /* RecipeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890123456789014F /* RecipeModel.swift */; };
 		A1234567890123456789015A /* OpenAIAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890123456789015B /* OpenAIAPIService.swift */; };
 		A1234567890123456789015C /* FridgeChef.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890123456789015D /* FridgeChef.xcdatamodeld */; };
 /* End PBXBuildFile section */
@@ -30,7 +29,6 @@
 		A1234567890123456789013F /* RecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeView.swift; sourceTree = "<group>"; };
 		A1234567890123456789014B /* RecipeDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeDetailView.swift; sourceTree = "<group>"; };
 		A1234567890123456789014D /* IngredientModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientModel.swift; sourceTree = "<group>"; };
-		A1234567890123456789014F /* RecipeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeModel.swift; sourceTree = "<group>"; };
 		A1234567890123456789015B /* OpenAIAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIAPIService.swift; sourceTree = "<group>"; };
 		A1234567890123456789015D /* FridgeChef.xcdatamodeld */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FridgeChef.xcdatamodeld; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -63,7 +61,6 @@
 				A1234567890123456789013F /* RecipeView.swift */,
 				A1234567890123456789014B /* RecipeDetailView.swift */,
 				A1234567890123456789014D /* IngredientModel.swift */,
-				A1234567890123456789014F /* RecipeModel.swift */,
 				A1234567890123456789015B /* OpenAIAPIService.swift */,
 				A1234567890123456789012F /* Assets.xcassets */,
 				A1234567890123456789015D /* FridgeChef.xcdatamodeld */,
@@ -163,10 +160,9 @@
 				A1234567890123456789013E /* RecipeView.swift in Sources */,
 				A1234567890123456789014A /* RecipeDetailView.swift in Sources */,
 				A1234567890123456789014C /* IngredientModel.swift in Sources */,
-				A1234567890123456789014E /* RecipeModel.swift in Sources */,
 				A1234567890123456789015A /* OpenAIAPIService.swift in Sources */,
-				A1234567890123456789015C /* FridgeChef.xcdatamodeld in Sources */,
 				A1234567890123456789012A /* FridgeChefApp.swift in Sources */,
+				A1234567890123456789015C /* FridgeChef.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -302,8 +298,8 @@
 				DEVELOPMENT_ASSET_PATHS = "\"FridgeChef/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs camera access to take photos of your fridge contents for recipe suggestions.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs photo library access to select existing photos of your fridge.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "FridgeChef needs camera access to take photos of your fridge contents for ingredient analysis and recipe suggestions.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "FridgeChef needs photo library access to select existing photos of your fridge for ingredient analysis.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -332,8 +328,8 @@
 				DEVELOPMENT_ASSET_PATHS = "\"FridgeChef/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs camera access to take photos of your fridge contents for recipe suggestions.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs photo library access to select existing photos of your fridge.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "FridgeChef needs camera access to take photos of your fridge contents for ingredient analysis and recipe suggestions.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "FridgeChef needs photo library access to select existing photos of your fridge for ingredient analysis.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -374,6 +370,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		A1234567890123456789015D /* FridgeChef.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				A1234567890123456789015G /* FridgeChef.xcdatamodel */,
+			);
+			currentVersion = A1234567890123456789015G /* FridgeChef.xcdatamodel */;
+			path = FridgeChef.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = A1234567890123456789012P /* Project object */;
 }
